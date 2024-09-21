@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column
     private String name;
@@ -23,7 +23,7 @@ public class Product {
     private int stock;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private Category category;
 
     public Category getCategory() {
@@ -34,11 +34,11 @@ public class Product {
         this.category = category;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -73,4 +73,5 @@ public class Product {
     public void setStock(int stock) {
         this.stock = stock;
     }
+
 }
