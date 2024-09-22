@@ -4,6 +4,7 @@ import com.project.demo.logic.entity.category.Category;
 import com.project.demo.logic.entity.category.CategoryRepository;
 import com.project.demo.logic.entity.product.Product;
 import com.project.demo.logic.entity.product.ProductRepository;
+import org.hibernate.engine.spi.Resolution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,20 +46,29 @@ public class ProductRestController {
     // Actualizar los productos
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
-    public Product updateProduct(@PathVariable long id, @RequestBody Product product) {
-        return productRepository.findById(id)
+    public ResponseEntity<?> updateProduct(@PathVariable long id, @RequestBody Product product) {
+        Optional<Category> optionalCategory = categoryRepository.findById(product.getCategory().getId());
+        if(optionalCategory.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category not found");
+        }
+            productRepository.findById(id)
                 .map(existingProduct -> {
                     existingProduct.setName(product.getName());
                     existingProduct.setDescription(product.getDescription());
                     existingProduct.setPrice(product.getPrice());
                     existingProduct.setStock(product.getStock());
-                    existingProduct.setCategory(product.getCategory());
-                    return productRepository.save(existingProduct);
+                    existingProduct.setCategory(optionalCategory.get());
+                    productRepository.save(existingProduct);
+                    return ResponseEntity.ok(existingProduct);
                 })
                 .orElseGet(() -> {
                     product.setId(id);
-                    return productRepository.save(product);
+                    productRepository.save(product);
+                    return ResponseEntity.ok(product);
+
                 });
+
+        return ResponseEntity.ok(productRepository.findById(id).get());
     }
 
     // Eliminar los productos

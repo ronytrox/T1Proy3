@@ -57,10 +57,6 @@ public class UserRestController {
                 });
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        UserRepository.deleteById(id);
-    }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
